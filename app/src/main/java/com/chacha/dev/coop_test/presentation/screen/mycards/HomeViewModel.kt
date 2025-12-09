@@ -39,8 +39,18 @@ class HomeViewModel @Inject constructor(
                 observeUser()
             ) { cards, user -> user to cards }
                 .collect { (user, cards) ->
-                    val filtered = user?.let { u -> cards.filter { it.userId == u.id } } ?: cards
-                    _state.update { it.copy(cards = filtered, isLoading = false, error = null) }
+                    val filtered = if (user != null) {
+                        cards.filter { it.userId == user.id }
+                    } else {
+                        cards
+                    }
+                    _state.update { 
+                        it.copy(
+                            cards = filtered, 
+                            isLoading = false, 
+                            error = null
+                        ) 
+                    }
                 }
         }
     }
@@ -51,7 +61,12 @@ class HomeViewModel @Inject constructor(
             try {
                 refreshData()
             } catch (e: Exception) {
-                _state.update { it.copy(error = e.localizedMessage) }
+                _state.update { 
+                    it.copy(
+                        error = e.localizedMessage ?: "Failed to load cards",
+                        isLoading = false
+                    ) 
+                }
             }
         }
     }

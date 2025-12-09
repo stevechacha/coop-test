@@ -39,7 +39,11 @@ class CardRepositoryImpl @Inject constructor(
                         cardEntity.toDomain(wallets)
                     }
                 }
-                combine(flows) { it.toList() }
+                if (flows.isEmpty()) {
+                    flowOf(emptyList())
+                } else {
+                    combine(flows) { it.toList() }
+                }
             }
         }
 
