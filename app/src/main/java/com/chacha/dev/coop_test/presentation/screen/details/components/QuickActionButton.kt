@@ -26,29 +26,21 @@ import com.chacha.dev.coop_test.R
 fun QuickActionButton(
     iconRes: Int,
     label: String,
-    color: Color,
     onClick: () -> Unit
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.clickable(onClick = onClick)
     ) {
-        Surface(
-            modifier = Modifier.size(56.dp),
-            shape = CircleShape,
-            color = color,
-            tonalElevation = 4.dp
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Image(
-                    painter = painterResource(id = iconRes),
-                    contentDescription = label,
-                    modifier = Modifier.size(24.dp),
-                    contentScale = ContentScale.Fit,
-                    colorFilter = ColorFilter.tint(Color.White)
-                )
-            }
+        Box(contentAlignment = Alignment.Center) {
+            Image(
+                painter = painterResource(id = iconRes),
+                contentDescription = label,
+                modifier = Modifier.size(24.dp),
+                contentScale = ContentScale.Fit,
+            )
         }
+
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             label,

@@ -24,25 +24,21 @@ fun QuickActionButtons(
         QuickActionButton(
             iconRes = R.drawable.new_card,
             label = "New Card",
-            color = Color(0xFF4CAF50),
             onClick = { }
         )
         QuickActionButton(
             iconRes = R.drawable.deposit,
             label = "Deposit",
-            color = Color(0xFF2196F3),
             onClick = { }
         )
         QuickActionButton(
             iconRes = R.drawable.ic_withdraw,
             label = "Withdraw",
-            color = Color(0xFF4CAF50),
             onClick = { }
         )
         QuickActionButton(
             iconRes = R.drawable.blocked,
             label = if (cardStatus == "ACTIVE") "Block Card" else "Unblock Card",
-            color = Color(0xFF4CAF50),
             onClick = onToggleBlock
         )
     }

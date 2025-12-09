@@ -35,7 +35,7 @@ fun AppNavHost(navController: NavHostController) {
         composable<Screen.UserProfile> {
             UserProfileScreen(
                 onBack = { navController.popBackStack() },
-                )
+            )
         }
     }
 }
