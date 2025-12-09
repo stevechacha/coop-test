@@ -142,9 +142,9 @@ private fun MyCardsContent(
         else -> LazyColumn(
             modifier = modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             contentPadding = PaddingValues(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(state.cards) { card ->
                 CardItem(card = card, onClick = { onCardClick(card.id) })
