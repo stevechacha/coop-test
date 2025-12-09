@@ -109,7 +109,6 @@ fun UserEntity.toDomain(): UserModel = UserModel(
     postalCode = postalCode
 )
 
-// Domain -> Entity
 fun CardModel.toEntity(): CardEntity = CardEntity(
     id = id,
     userId = userId,

@@ -80,7 +80,6 @@ class LocalDataSourceImpl @Inject constructor(
         val cardEntities = cards.map { it.toEntity() }
         cardDao.upsertCards(cardEntities)
 
-        // Insert wallets for each card
         cards.forEach { card ->
             cardDao.deleteWallets(card.id)
             if (card.wallets.isNotEmpty()) {

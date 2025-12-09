@@ -19,7 +19,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-    private const val BASE_URL = "https://test-03.free.beeceptor.com/"
+    private const val BASE_URL = "https://test-05.free.beeceptor.com/"
 
     @Provides
     @Singleton
@@ -50,13 +50,10 @@ object NetworkModule {
             .build()
     }
 
-
-
     @Provides
     @Singleton
     fun provideNetworkApi(retrofit: Retrofit): NetworkApi =
         retrofit.create(NetworkApi::class.java)
-
 
     @Provides
     @Singleton

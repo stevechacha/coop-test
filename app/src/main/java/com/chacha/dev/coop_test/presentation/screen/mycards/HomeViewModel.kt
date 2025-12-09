@@ -27,7 +27,6 @@ class HomeViewModel @Inject constructor(
     val state: StateFlow<MyCardsUiState> = _state
 
     init {
-        // Repository handles local-first with network fallback automatically
         viewModelScope.launch {
             combine(
                 observeCards(),

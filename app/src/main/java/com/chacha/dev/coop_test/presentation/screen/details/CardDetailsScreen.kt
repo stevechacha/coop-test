@@ -134,7 +134,6 @@ private fun CardDetailsContent(
             }
         }
 
-        // Card Balance Section
         item {
             Column(
                 modifier = Modifier
@@ -281,7 +280,6 @@ private fun CardDetailsContent(
             Spacer(modifier = Modifier.height(24.dp))
         }
 
-        // Quick Actions
         item {
             Row(
                 modifier = Modifier
@@ -293,13 +291,13 @@ private fun CardDetailsContent(
                     icon = Icons.Default.ArrowDownward,
                     label = "Deposit",
                     color = Color(0xFF2196F3),
-                    onClick = { /* TODO */ }
+                    onClick = { }
                 )
                 QuickActionButton(
                     icon = Icons.Default.ArrowUpward,
                     label = "Withdraw",
                     color = Color(0xFF4CAF50),
-                    onClick = { /* TODO */ }
+                    onClick = { }
                 )
                 QuickActionButton(
                     icon = Icons.Default.Lock,
@@ -314,7 +312,6 @@ private fun CardDetailsContent(
             Spacer(modifier = Modifier.height(24.dp))
         }
 
-        // Recent Transfers Section
         item {
             Text(
                 "Recent Transfers",
@@ -331,9 +328,6 @@ private fun CardDetailsContent(
 }
 
 
-
-
-//@Preview(showBackground = true, backgroundColor = 0xFFF5F5F5)
 @Composable
 private fun CardDetailsScreenPreview() {
     val mockCard = com.chacha.dev.coop_test.domain.model.CardModel(

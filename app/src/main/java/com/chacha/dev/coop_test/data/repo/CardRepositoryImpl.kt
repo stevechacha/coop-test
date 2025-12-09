@@ -22,32 +22,26 @@ class CardRepositoryImpl @Inject constructor(
 ) : CardRepository {
 
     override fun getCards(): Flow<Resource<List<CardModel>>> = flow {
-        // First, try to emit cached data if available
         try {
             val cachedCards = localDataSource.getCards().first()
             if (cachedCards.isNotEmpty()) {
                 emit(Resource.Success(cachedCards))
             }
         } catch (e: Exception) {
-            // If no cache, continue to fetch from remote
         }
 
-        // Emit loading state
         emit(Resource.Loading())
 
-        // Then fetch from remote and update cache
         val result = remoteDataSource.fetchCards()
         when (result) {
             is Resource.Success -> {
                 val remoteCards = result.data ?: emptyList()
-                // Save to local
                 withContext(Dispatchers.IO) {
                     localDataSource.insertCards(remoteCards)
                 }
                 emit(Resource.Success(remoteCards))
             }
             is Resource.Error -> {
-                // If remote fails, try to return cached data
                 try {
                     val cachedCards = localDataSource.getCards().first()
                     if (cachedCards.isNotEmpty()) {
@@ -60,13 +54,11 @@ class CardRepositoryImpl @Inject constructor(
                 }
             }
             is Resource.Loading -> {
-                // Already emitted loading, do nothing
             }
         }
     }
 
     override fun getCard(id: String): Flow<Resource<CardModel?>> = flow {
-        // First, try to get from cache
         try {
             val cachedCard = localDataSource.getCard(id).first()
             if (cachedCard != null) {
@@ -74,14 +66,10 @@ class CardRepositoryImpl @Inject constructor(
                 return@flow
             }
         } catch (e: Exception) {
-            // Continue to fetch from remote
         }
 
-        // Emit loading state
         emit(Resource.Loading())
 
-        // For now, return cached data or null
-        // Remote fetch for single card would need to be added to remote data source
         try {
             val cachedCard = localDataSource.getCard(id).first()
             emit(Resource.Success(cachedCard))
@@ -91,20 +79,16 @@ class CardRepositoryImpl @Inject constructor(
     }
 
     override fun getTransactions(cardId: String, limit: Int): Flow<Resource<List<TransactionModel>>> = flow {
-        // First, try to emit cached data if available
         try {
             val cachedTransactions = localDataSource.getTransactions(cardId, limit).first()
             if (cachedTransactions.isNotEmpty()) {
                 emit(Resource.Success(cachedTransactions))
             }
         } catch (e: Exception) {
-            // If no cache, continue to fetch from remote
         }
 
-        // Emit loading state
         emit(Resource.Loading())
 
-        // Fetch from remote and update cache
         try {
             val remoteTransactions = remoteDataSource.fetchTransactions()
             withContext(Dispatchers.IO) {
@@ -112,7 +96,6 @@ class CardRepositoryImpl @Inject constructor(
             }
             emit(Resource.Success(remoteTransactions))
         } catch (e: Exception) {
-            // If remote fails, try to return cached data
             try {
                 val cachedTransactions = localDataSource.getTransactions(cardId, limit).first()
                 if (cachedTransactions.isNotEmpty()) {
@@ -127,7 +110,6 @@ class CardRepositoryImpl @Inject constructor(
     }
 
     override fun getUser(): Flow<Resource<UserModel?>> = flow {
-        // First, try to get from cache
         try {
             val cachedUser = localDataSource.getUser().first()
             if (cachedUser != null) {
@@ -135,13 +117,10 @@ class CardRepositoryImpl @Inject constructor(
                 return@flow
             }
         } catch (e: Exception) {
-            // Continue to fetch from remote
         }
 
-        // Emit loading state
         emit(Resource.Loading())
 
-        // Fetch from remote and update cache
         try {
             val remoteUser = remoteDataSource.fetchUser()
             withContext(Dispatchers.IO) {
@@ -149,7 +128,6 @@ class CardRepositoryImpl @Inject constructor(
             }
             emit(Resource.Success(remoteUser))
         } catch (e: Exception) {
-            // If remote fails, try to return cached data
             try {
                 val cachedUser = localDataSource.getUser().first()
                 if (cachedUser != null) {
@@ -179,7 +157,6 @@ class CardRepositoryImpl @Inject constructor(
             localDataSource.insertTransactions(transactionsDomain)
             Resource.Success(Unit)
         } catch (e: Exception) {
-            // Fallback to cached data if present
             try {
                 val cachedCards = localDataSource.getCards().first()
                 val hasCache = cachedCards.isNotEmpty()

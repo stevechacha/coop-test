@@ -1,8 +1,5 @@
 package com.chacha.dev.coop_test.domain.common
 
-/**
- * Simple Resource wrapper for loading/data/error states.
- */
 sealed class Resource<T>(
     val data: T? = null,
     val message: String? = null
