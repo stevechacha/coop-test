@@ -6,23 +6,33 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.chacha.dev.coop_test.domain.model.CardModel
 import com.chacha.dev.coop_test.domain.model.CardType
 import com.chacha.dev.coop_test.domain.model.WalletModel
@@ -31,19 +41,71 @@ import com.chacha.dev.coop_test.presentation.screen.mycards.components.CardItem
 @Composable
 fun MyCardsScreen(
     modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = hiltViewModel(),
+    viewModel: MyCardsViewModel = hiltViewModel(),
     onCardClick: (String) -> Unit = {},
     onProfileClick: () -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState()
 
-    MyCardsContent(
-        state = state,
-        modifier = modifier,
-        onCardClick = onCardClick,
-        onProfileClick = onProfileClick,
-        onRefresh = { viewModel.refresh() }
-    )
+    Scaffold(
+        topBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .windowInsetsPadding(WindowInsets.statusBars)
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (state.user != null) {
+                        AsyncImage(
+                            model = state.user?.avatarUrl,
+                            contentDescription = "User Avatar",
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .clickable { onProfileClick() },
+                            contentScale = ContentScale.Crop
+                        )
+                        Column {
+                            Text(
+                                text = "Hi ${state.user?.firstName}",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "My Cards",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    } else {
+                        Text("My Cards", style = MaterialTheme.typography.titleLarge)
+                    }
+                }
+                Text(
+                    text = "View All Cards",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.clickable { onProfileClick() }
+                )
+            }
+        }
+    ) { paddingValues ->
+        MyCardsContent(
+            state = state,
+            modifier = modifier.fillMaxSize().padding(paddingValues),
+            onCardClick = onCardClick,
+            onProfileClick = onProfileClick,
+            onRefresh = { viewModel.refresh() }
+        )
+    }
+
+
 }
 
 @Composable
@@ -84,21 +146,6 @@ private fun MyCardsContent(
             contentPadding = PaddingValues(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("My Cards", style = MaterialTheme.typography.titleLarge)
-                    Text(
-                        text = "Profile",
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.clickable { onProfileClick() }
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-            }
             items(state.cards) { card ->
                 CardItem(card = card, onClick = { onCardClick(card.id) })
             }
@@ -203,7 +250,12 @@ private fun MyCardsScreenPreview() {
         )
     )
     MyCardsContent(
-        state = MyCardsUiState(cards = mockCards, isLoading = false, error = null),
+        state = MyCardsUiState(
+            cards = mockCards,
+            user = null,
+            isLoading = false,
+            error = null
+        ),
         onCardClick = {},
         onProfileClick = {},
         onRefresh = {}

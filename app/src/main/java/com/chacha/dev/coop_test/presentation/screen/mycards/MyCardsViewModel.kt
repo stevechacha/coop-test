@@ -3,7 +3,6 @@ package com.chacha.dev.coop_test.presentation.screen.mycards
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chacha.dev.coop_test.domain.common.Resource
-import com.chacha.dev.coop_test.domain.model.CardModel
 import com.chacha.dev.coop_test.domain.usecases.ObserveCardsUseCase
 import com.chacha.dev.coop_test.domain.usecases.ObserveUserUseCase
 import com.chacha.dev.coop_test.domain.usecases.RefreshDataUseCase
@@ -17,7 +16,7 @@ import kotlinx.coroutines.launch
 
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class MyCardsViewModel @Inject constructor(
     observeCards: ObserveCardsUseCase,
     observeUser: ObserveUserUseCase,
     private val refreshData: RefreshDataUseCase
@@ -38,6 +37,7 @@ class HomeViewModel @Inject constructor(
                         _state.update { it.copy(error = cardsRes.message) }
                         emptyList()
                     }
+
                     is Resource.Loading -> {
                         _state.update { it.copy(isLoading = true) }
                         emptyList()
@@ -51,6 +51,7 @@ class HomeViewModel @Inject constructor(
                         }
                         null
                     }
+
                     is Resource.Loading -> null
                 }
                 user to cards
@@ -64,6 +65,7 @@ class HomeViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             cards = filtered,
+                            user = user,
                             isLoading = false,
                             error = null
                         )
@@ -83,6 +85,7 @@ class HomeViewModel @Inject constructor(
                         isLoading = false
                     )
                 }
+
                 is Resource.Loading -> _state.update {
                     it.copy(isLoading = true)
                 }

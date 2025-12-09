@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +27,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.size.Scale
 import com.chacha.dev.coop_test.domain.model.CardType
 import com.chacha.dev.coop_test.domain.model.TransactionModel
 import com.chacha.dev.coop_test.domain.model.WalletModel
@@ -108,11 +111,8 @@ private fun CardDetailsContent(
         CardType.PREPAID -> listOf(Color(0xFF1A1A1A), Color(0xFF2D2D2D))
     }
 
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 32.dp)
-    ) {
-        item {
+    Scaffold(
+        topBar = {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -133,196 +133,204 @@ private fun CardDetailsContent(
                 }
             }
         }
-
-        item {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        "Card Balance",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.Gray
-                    )
-                    IconButton(onClick = { balanceVisible = !balanceVisible }) {
-                        Icon(
-                            if (balanceVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                            contentDescription = "Toggle visibility"
-                        )
-                    }
-                }
-                val balance = when {
-                    card.creditLimit != null -> card.creditLimit
-                    else -> card.balance
-                } ?: 0.0
-                Text(
-                    if (balanceVisible) "KES ${"%,.2f".format(balance)}" else "KES ••••••",
-                    style = MaterialTheme.typography.displaySmall,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-
-        item {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .height(220.dp),
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-            ) {
-                Box(
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = modifier.fillMaxSize().padding(paddingValues),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(bottom = 32.dp)
+        ) {
+            item {
+                Column(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .background(Brush.linearGradient(cardColors))
-                        .padding(20.dp)
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.SpaceBetween
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Column {
-                                Text(
-                                    card.type.name.replace("_", " "),
-                                    color = Color.White.copy(alpha = 0.9f),
-                                    style = MaterialTheme.typography.labelMedium
-                                )
-                                Text(
-                                    card.status,
-                                    color = if (card.status == "ACTIVE") Color(0xFF4CAF50) else Color(0xFFF44336),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                            Text(
-                                "GO BANK",
-                                color = Color.White,
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
+                        Text(
+                            "Card Balance",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.Gray
+                        )
+                        IconButton(onClick = { balanceVisible = !balanceVisible }) {
+                            Icon(
+                                if (balanceVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                contentDescription = "Toggle visibility"
                             )
                         }
+                    }
+                    val balance = when {
+                        card.creditLimit != null -> card.creditLimit
+                        else -> card.balance
+                    } ?: 0.0
+                    Text(
+                        if (balanceVisible) "KES ${"%,.2f".format(balance)}" else "KES ••••••",
+                        style = MaterialTheme.typography.displaySmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
 
-                        Column {
-                            Text(
-                                text = formatCardNumber(card.cardNumber),
-                                color = Color.White,
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 2.sp
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .height(220.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Brush.linearGradient(cardColors))
+                            .padding(20.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.SpaceBetween
+                        ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Column {
                                     Text(
-                                        "VALID THRU",
-                                        color = Color.White.copy(alpha = 0.7f),
-                                        style = MaterialTheme.typography.labelSmall
+                                        card.type.name.replace("_", " "),
+                                        color = Color.White.copy(alpha = 0.9f),
+                                        style = MaterialTheme.typography.labelMedium
                                     )
                                     Text(
-                                        card.expiryDate,
-                                        color = Color.White,
-                                        style = MaterialTheme.typography.bodyMedium
+                                        card.status,
+                                        color = if (card.status == "ACTIVE") Color(0xFF4CAF50) else Color(
+                                            0xFFF44336
+                                        ),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold
                                     )
                                 }
-                                Column(horizontalAlignment = Alignment.End) {
-                                    Text(
-                                        "CARD HOLDER",
-                                        color = Color.White.copy(alpha = 0.7f),
-                                        style = MaterialTheme.typography.labelSmall
-                                    )
-                                    Text(
-                                        card.holderName.uppercase(),
-                                        color = Color.White,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.SemiBold
-                                    )
+                                Text(
+                                    "GO BANK",
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+
+                            Column {
+                                Text(
+                                    text = formatCardNumber(card.cardNumber),
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 2.sp
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Column {
+                                        Text(
+                                            "VALID THRU",
+                                            color = Color.White.copy(alpha = 0.7f),
+                                            style = MaterialTheme.typography.labelSmall
+                                        )
+                                        Text(
+                                            card.expiryDate,
+                                            color = Color.White,
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    }
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        Text(
+                                            "CARD HOLDER",
+                                            color = Color.White.copy(alpha = 0.7f),
+                                            style = MaterialTheme.typography.labelSmall
+                                        )
+                                        Text(
+                                            card.holderName.uppercase(),
+                                            color = Color.White,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    }
                                 }
                             }
-                        }
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.Bottom
-                        ) {
-                            Text(
-                                card.name.uppercase(),
-                                color = Color.White.copy(alpha = 0.8f),
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            Text(
-                                "VISA",
-                                color = Color.White,
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.Bottom
+                            ) {
+                                Text(
+                                    card.name.uppercase(),
+                                    color = Color.White.copy(alpha = 0.8f),
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Text(
+                                    "VISA",
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
 
-        item {
-            Spacer(modifier = Modifier.height(24.dp))
-        }
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
 
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                QuickActionButton(
-                    icon = Icons.Default.ArrowDownward,
-                    label = "Deposit",
-                    color = Color(0xFF2196F3),
-                    onClick = { }
-                )
-                QuickActionButton(
-                    icon = Icons.Default.ArrowUpward,
-                    label = "Withdraw",
-                    color = Color(0xFF4CAF50),
-                    onClick = { }
-                )
-                QuickActionButton(
-                    icon = Icons.Default.Lock,
-                    label = if (card.status == "ACTIVE") "Block Card" else "Unblock Card",
-                    color = Color(0xFF4CAF50),
-                    onClick = onToggleBlock
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    QuickActionButton(
+                        icon = Icons.Default.ArrowDownward,
+                        label = "Deposit",
+                        color = Color(0xFF2196F3),
+                        onClick = { }
+                    )
+                    QuickActionButton(
+                        icon = Icons.Default.ArrowUpward,
+                        label = "Withdraw",
+                        color = Color(0xFF4CAF50),
+                        onClick = { }
+                    )
+                    QuickActionButton(
+                        icon = Icons.Default.Lock,
+                        label = if (card.status == "ACTIVE") "Block Card" else "Unblock Card",
+                        color = Color(0xFF4CAF50),
+                        onClick = onToggleBlock
+                    )
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            item {
+                Text(
+                    "Recent Transfers",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 )
             }
-        }
 
-        item {
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-
-        item {
-            Text(
-                "Recent Transfers",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-        }
-
-        items(state.transactions.take(10)) { transaction ->
-            TransactionRow(transaction)
+            items(state.transactions.take(10)) { transaction ->
+                TransactionRow(transaction)
+            }
         }
     }
 }
