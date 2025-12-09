@@ -1,6 +1,6 @@
 package com.chacha.dev.coop_test.data.remote.responses
 
-data class Card(
+data class CardDto(
     val balance: Double? = null,
     val cardNumber: String,
     val creditLimit: Double? = null,
@@ -15,5 +15,5 @@ data class Card(
     val status: String,
     val type: String,
     val userId: String,
-    val wallets: List<Wallet> = emptyList()
+    val wallets: List<WalletDto> = emptyList()
 )

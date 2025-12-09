@@ -77,14 +77,9 @@ class CardDetailsViewModel @Inject constructor(
         }
     }
 
-    /**
-        Explicit trigger to refresh UI state when screen is opened.
-        Currently just resets loading/error; data flows are already active.
-     */
     fun loadCardDetails(requestedId: String) {
         if (requestedId != cardId) return
         _state.update { it.copy(isLoading = true, error = null) }
-        // The observers will update state when flows emit.
     }
 }
 

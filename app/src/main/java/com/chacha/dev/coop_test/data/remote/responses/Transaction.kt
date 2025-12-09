@@ -1,6 +1,6 @@
 package com.chacha.dev.coop_test.data.remote.responses
 
-data class Transaction(
+data class TransactionDto(
     val amount: Double,
     val cardId: String,
     val currency: String,

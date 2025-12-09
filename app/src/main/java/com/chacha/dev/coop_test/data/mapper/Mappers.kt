@@ -4,10 +4,10 @@ import com.chacha.dev.coop_test.data.local.entity.CardEntity
 import com.chacha.dev.coop_test.data.local.entity.TransactionEntity
 import com.chacha.dev.coop_test.data.local.entity.UserEntity
 import com.chacha.dev.coop_test.data.local.entity.WalletEntity
-import com.chacha.dev.coop_test.data.remote.responses.Card
-import com.chacha.dev.coop_test.data.remote.responses.Transaction
+import com.chacha.dev.coop_test.data.remote.responses.CardDto
+import com.chacha.dev.coop_test.data.remote.responses.TransactionDto
 import com.chacha.dev.coop_test.data.remote.responses.UserDto
-import com.chacha.dev.coop_test.data.remote.responses.Wallet
+import com.chacha.dev.coop_test.data.remote.responses.WalletDto
 import com.chacha.dev.coop_test.domain.model.CardModel
 import com.chacha.dev.coop_test.domain.model.CardType
 import com.chacha.dev.coop_test.domain.model.TransactionModel
@@ -15,7 +15,7 @@ import com.chacha.dev.coop_test.domain.model.UserModel
 import com.chacha.dev.coop_test.domain.model.WalletModel
 import java.time.Instant
 
-fun Card.toEntity(): CardEntity = CardEntity(
+fun CardDto.toEntity(): CardEntity = CardEntity(
     id = id,
     userId = userId,
     type = type,
@@ -32,14 +32,14 @@ fun Card.toEntity(): CardEntity = CardEntity(
     linkedAccountName = linkedAccountName
 )
 
-fun Wallet.toEntity(cardId: String): WalletEntity = WalletEntity(
+fun WalletDto.toEntity(cardId: String): WalletEntity = WalletEntity(
     cardId = cardId,
     currency = currency,
     flag = flag,
     balance = balance
 )
 
-fun Transaction.toEntity(): TransactionEntity = TransactionEntity(
+fun TransactionDto.toEntity(): TransactionEntity = TransactionEntity(
     id = id,
     cardId = cardId,
     amount = amount,
@@ -107,5 +107,39 @@ fun UserEntity.toDomain(): UserModel = UserModel(
     city = city,
     country = country,
     postalCode = postalCode
+)
+
+fun CardDto.toDomain(): CardModel = CardModel(
+    id = id,
+    userId = userId,
+    type = CardType.from(type),
+    name = name,
+    cardNumber = cardNumber,
+    holderName = holderName,
+    expiryDate = expiryDate,
+    status = status,
+    balance = balance,
+    currency = currency,
+    currentSpend = currentSpend,
+    creditLimit = creditLimit,
+    dueDate = dueDate,
+    linkedAccountName = linkedAccountName,
+    wallets = wallets.map { it.toDomain() }
+)
+
+fun WalletDto.toDomain(): WalletModel = WalletModel(
+    currency = currency,
+    flag = flag,
+    balance = balance
+)
+
+fun TransactionDto.toDomain(): TransactionModel = TransactionModel(
+    id = id,
+    cardId = cardId,
+    amount = amount,
+    currency = currency,
+    date = Instant.parse(date),
+    merchant = merchant,
+    type = type
 )
 

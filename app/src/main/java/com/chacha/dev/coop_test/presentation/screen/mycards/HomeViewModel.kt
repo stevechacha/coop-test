@@ -14,11 +14,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-data class MyCardsUiState(
-    val cards: List<CardModel> = emptyList(),
-    val isLoading: Boolean = false,
-    val error: String? = null
-)
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -29,6 +24,7 @@ class HomeViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(MyCardsUiState(isLoading = true))
     val state: StateFlow<MyCardsUiState> = _state
+    private var attemptedEmptyRefetch = false
 
     init {
         refresh()
@@ -44,12 +40,18 @@ class HomeViewModel @Inject constructor(
                     } else {
                         cards
                     }
-                    _state.update { 
+                    _state.update {
                         it.copy(
                             cards = filtered, 
                             isLoading = false, 
                             error = null
                         ) 
+                    }
+
+                    // If Room is empty, re-fetch from network once
+                    if (filtered.isEmpty() && !attemptedEmptyRefetch) {
+                        attemptedEmptyRefetch = true
+                        refresh()
                     }
                 }
         }
