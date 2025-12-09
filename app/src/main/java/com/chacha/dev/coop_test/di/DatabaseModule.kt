@@ -3,6 +3,11 @@ package com.chacha.dev.coop_test.di
 import android.content.Context
 import androidx.room.Room
 import com.chacha.dev.coop_test.data.local.AppDatabase
+import com.chacha.dev.coop_test.data.local.dao.CardDao
+import com.chacha.dev.coop_test.data.local.dao.TransactionDao
+import com.chacha.dev.coop_test.data.local.dao.UserDao
+import com.chacha.dev.coop_test.data.local.datasource.LocalDataSource
+import com.chacha.dev.coop_test.data.local.datasource.LocalDataSourceImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,4 +32,12 @@ object DatabaseModule {
 
     @Provides
     fun provideUserDao(db: AppDatabase) = db.userDao()
+
+    @Provides
+    @Singleton
+    fun provideLocalDataSource(
+        cardDao: CardDao,
+        transactionDao: TransactionDao,
+        userDao: UserDao
+    ): LocalDataSource = LocalDataSourceImpl(cardDao, transactionDao, userDao)
 }

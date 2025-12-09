@@ -1,8 +1,10 @@
 package com.chacha.dev.coop_test.di
 
 import com.chacha.dev.coop_test.data.remote.api.NetworkApi
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
+import com.chacha.dev.coop_test.data.remote.datasource.CardRemoteDataSource
+import com.chacha.dev.coop_test.data.remote.datasource.CardRemoteDataSourceImpl
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -10,8 +12,9 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Singleton
+
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -20,47 +23,44 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideGson(): Gson {
-        return GsonBuilder()
-            .setLenient()
-            .serializeNulls()
-            .setDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-            .create()
+    fun provideMoshi(): Moshi {
+        return Moshi.Builder()
+            .addLast(KotlinJsonAdapterFactory())
+            .build()
     }
 
-
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient =
-        OkHttpClient.Builder()
-            .addInterceptor(
-                HttpLoggingInterceptor().apply {
-                    level = HttpLoggingInterceptor.Level.BODY
-                }
-            )
+    fun provideOkHttpClient(): OkHttpClient {
+        val loggingInterceptor = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+        return OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
             .build()
+    }
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient, gson: Gson): Retrofit {
+    fun provideRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
     }
 
- /*   @Provides
-    @Singleton
-    fun provideRetrofit(client: OkHttpClient): Retrofit =
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()*/
+
 
     @Provides
     @Singleton
     fun provideNetworkApi(retrofit: Retrofit): NetworkApi =
         retrofit.create(NetworkApi::class.java)
+
+
+    @Provides
+    @Singleton
+    fun provideCardRemoteDataSource(
+        api: NetworkApi
+    ): CardRemoteDataSource = CardRemoteDataSourceImpl(api)
 }

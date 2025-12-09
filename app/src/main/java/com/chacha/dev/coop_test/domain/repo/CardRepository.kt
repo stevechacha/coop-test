@@ -1,17 +1,18 @@
 package com.chacha.dev.coop_test.domain.repo
 
+import com.chacha.dev.coop_test.domain.common.Resource
 import com.chacha.dev.coop_test.domain.model.CardModel
 import com.chacha.dev.coop_test.domain.model.TransactionModel
 import com.chacha.dev.coop_test.domain.model.UserModel
 import kotlinx.coroutines.flow.Flow
 
 interface CardRepository {
-    fun observeCards(): Flow<List<CardModel>>
-    fun observeCard(id: String): Flow<CardModel?>
-    fun observeTransactions(cardId: String, limit: Int = 10): Flow<List<TransactionModel>>
-    fun observeUser(): Flow<UserModel?>
+    fun getCards(): Flow<Resource<List<CardModel>>>
+    fun getCard(id: String): Flow<Resource<CardModel?>>
+    fun getTransactions(cardId: String, limit: Int = 10): Flow<Resource<List<TransactionModel>>>
+    fun getUser(): Flow<Resource<UserModel?>>
 
-    suspend fun refreshAll()
+    suspend fun refreshAll(): Resource<Unit>
     suspend fun toggleBlock(cardId: String)
 }
 

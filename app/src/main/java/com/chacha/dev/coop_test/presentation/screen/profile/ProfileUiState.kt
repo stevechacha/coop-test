@@ -4,5 +4,6 @@ import com.chacha.dev.coop_test.domain.model.UserModel
 
 data class ProfileUiState(
     val user: UserModel? = null,
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
+    val error: String? = null
 )

@@ -109,6 +109,54 @@ fun UserEntity.toDomain(): UserModel = UserModel(
     postalCode = postalCode
 )
 
+// Domain -> Entity
+fun CardModel.toEntity(): CardEntity = CardEntity(
+    id = id,
+    userId = userId,
+    type = type.name,
+    name = name,
+    cardNumber = cardNumber,
+    holderName = holderName,
+    expiryDate = expiryDate,
+    status = status,
+    balance = balance,
+    currency = currency,
+    currentSpend = currentSpend,
+    creditLimit = creditLimit,
+    dueDate = dueDate,
+    linkedAccountName = linkedAccountName
+)
+
+fun WalletModel.toEntity(cardId: String): WalletEntity = WalletEntity(
+    cardId = cardId,
+    currency = currency,
+    flag = flag,
+    balance = balance
+)
+
+fun TransactionModel.toEntity(): TransactionEntity = TransactionEntity(
+    id = id,
+    cardId = cardId,
+    amount = amount,
+    currency = currency,
+    date = date.toString(),
+    merchant = merchant,
+    type = type
+)
+
+fun UserModel.toEntity(): UserEntity = UserEntity(
+    id = id,
+    firstName = firstName,
+    lastName = lastName,
+    email = email,
+    phone = phone,
+    avatarUrl = avatarUrl,
+    street = street,
+    city = city,
+    country = country,
+    postalCode = postalCode
+)
+
 fun CardDto.toDomain(): CardModel = CardModel(
     id = id,
     userId = userId,
@@ -141,5 +189,18 @@ fun TransactionDto.toDomain(): TransactionModel = TransactionModel(
     date = Instant.parse(date),
     merchant = merchant,
     type = type
+)
+
+fun UserDto.toDomain(): UserModel = UserModel(
+    id = id,
+    firstName = firstName,
+    lastName = lastName,
+    email = email,
+    phone = phone,
+    avatarUrl = avatarUrl,
+    street = address.street,
+    city = address.city,
+    country = address.country,
+    postalCode = address.postalCode
 )
 

@@ -2,6 +2,7 @@ package com.chacha.dev.coop_test.presentation.screen.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.chacha.dev.coop_test.domain.common.Resource
 import com.chacha.dev.coop_test.domain.model.UserModel
 import com.chacha.dev.coop_test.domain.usecases.ObserveUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,8 +23,18 @@ class ProfileViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            observeUser().collect { user ->
-                _state.update { it.copy(user = user, isLoading = false) }
+            observeUser().collect { userRes ->
+                when (userRes) {
+                    is Resource.Success -> {
+                        _state.update { it.copy(user = userRes.data, isLoading = false) }
+                    }
+                    is Resource.Error -> {
+                        _state.update { it.copy(isLoading = false, error = userRes.message) }
+                    }
+                    is Resource.Loading -> {
+                        _state.update { it.copy(isLoading = true) }
+                    }
+                }
             }
         }
     }

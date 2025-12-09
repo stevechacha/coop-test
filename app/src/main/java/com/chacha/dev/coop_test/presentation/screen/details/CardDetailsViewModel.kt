@@ -3,6 +3,7 @@ package com.chacha.dev.coop_test.presentation.screen.details
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.chacha.dev.coop_test.domain.common.Resource
 import com.chacha.dev.coop_test.domain.model.CardModel
 import com.chacha.dev.coop_test.domain.model.TransactionModel
 import com.chacha.dev.coop_test.domain.model.WalletModel
@@ -14,7 +15,6 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -38,21 +38,44 @@ class CardDetailsViewModel @Inject constructor(
     private fun observeData() {
         viewModelScope.launch {
             combine(
-                observeCard(cardId).filterNotNull(),
+                observeCard(cardId),
                 observeTransactions(cardId)
-            ) { card, transactions ->
+            ) { cardRes, transactionsRes ->
+                val card = when (cardRes) {
+                    is Resource.Success -> cardRes.data
+                    is Resource.Error -> {
+                        _state.update { it.copy(error = cardRes.message) }
+                        null
+                    }
+                    is Resource.Loading -> {
+                        _state.update { it.copy(isLoading = true) }
+                        null
+                    }
+                }
+                val transactions = when (transactionsRes) {
+                    is Resource.Success -> transactionsRes.data ?: emptyList()
+                    is Resource.Error -> {
+                        if (_state.value.error == null) {
+                            _state.update { it.copy(error = transactionsRes.message) }
+                        }
+                        emptyList()
+                    }
+                    is Resource.Loading -> emptyList()
+                }
                 card to transactions
             }.collect { (card, tx) ->
-                val selectedWallet = _state.value.selectedWallet ?: card.wallets.firstOrNull()
-                _state.update {
-                    it.copy(
-                        card = card,
-                        selectedWallet = selectedWallet,
-                        transactions = tx.filterByWallet(selectedWallet),
-                        allTransactions = tx,
-                        isLoading = false,
-                        error = null
-                    )
+                if (card != null) {
+                    val selectedWallet = _state.value.selectedWallet ?: card.wallets.firstOrNull()
+                    _state.update {
+                        it.copy(
+                            card = card,
+                            selectedWallet = selectedWallet,
+                            transactions = tx.filterByWallet(selectedWallet),
+                            allTransactions = tx,
+                            isLoading = false,
+                            error = null
+                        )
+                    }
                 }
             }
         }

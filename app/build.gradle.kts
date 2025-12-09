@@ -59,12 +59,16 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.7.7")
 
 
+    // Networking (Moshi)
     // Networking
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
     implementation(libs.gson)
+    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+    implementation("com.squareup.moshi:moshi:1.15.0")
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)
