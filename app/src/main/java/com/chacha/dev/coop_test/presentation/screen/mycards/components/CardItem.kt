@@ -58,9 +58,9 @@ fun CardItem(
             Color(0xFF004D40)
         )
         CardType.MULTI_CURRENCY -> listOf(
-            Color(0xFF0D7A4A),
-            Color(0xFF1A9D5F),
-            Color(0xFF0F6B3F)
+            Color(0xFFAFE360),
+            Color(0xFF9FD350),
+            Color(0xFF8FC340)
         )
     }
 

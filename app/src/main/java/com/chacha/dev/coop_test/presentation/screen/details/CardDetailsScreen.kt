@@ -103,9 +103,14 @@ private fun CardDetailsContent(
     val cardColors = when (card.type) {
         CardType.CREDIT -> listOf(Color(0xFF0D47A1), Color(0xFF1976D2))
         CardType.DEBIT -> listOf(Color(0xFF00695C), Color(0xFF00897B))
-        CardType.MULTI_CURRENCY -> listOf(Color(0xFF4A148C), Color(0xFF7B1FA2))
+        CardType.MULTI_CURRENCY -> listOf(
+            Color(0xFFAFE360),
+            Color(0xFF9FD350),
+            Color(0xFF8FC340)
+        )
         CardType.PREPAID -> listOf(Color(0xFF1A1A1A), Color(0xFF2D2D2D))
     }
+
 
     Scaffold(
         topBar = {
