@@ -16,12 +16,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import com.chacha.dev.coop_test.R
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -113,23 +111,38 @@ private fun CardDetailsContent(
 
     Scaffold(
         topBar = {
-            Row(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .background(Color(0xFF2E7D32))
             ) {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                }
-                Text(
-                    "Hi ${card.holderName.split(" ").firstOrNull() ?: "User"}",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                IconButton(onClick = onBack) {
-                    Icon(Icons.Default.Close, contentDescription = "Close")
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.White
+                        )
+                    }
+                    Text(
+                        "Hi ${card.holderName.split(" ").firstOrNull() ?: "User"}",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = "Close",
+                            tint = Color.White
+                        )
+                    }
                 }
             }
         }
@@ -213,7 +226,7 @@ private fun CardDetailsContent(
                                     )
                                 }
                                 Text(
-                                    "GO BANK",
+                                    "COOP BANK",
                                     color = Color.White,
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold
@@ -295,19 +308,25 @@ private fun CardDetailsContent(
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     QuickActionButton(
-                        icon = Icons.Default.ArrowDownward,
+                        iconRes = R.drawable.new_card,
+                        label = "New Card",
+                        color = Color(0xFF4CAF50),
+                        onClick = { }
+                    )
+                    QuickActionButton(
+                        iconRes = R.drawable.deposit,
                         label = "Deposit",
                         color = Color(0xFF2196F3),
                         onClick = { }
                     )
                     QuickActionButton(
-                        icon = Icons.Default.ArrowUpward,
+                        iconRes = R.drawable.ic_withdraw,
                         label = "Withdraw",
                         color = Color(0xFF4CAF50),
                         onClick = { }
                     )
                     QuickActionButton(
-                        icon = Icons.Default.Lock,
+                        iconRes = R.drawable.blocked,
                         label = if (card.status == "ACTIVE") "Block Card" else "Unblock Card",
                         color = Color(0xFF4CAF50),
                         onClick = onToggleBlock
@@ -320,12 +339,21 @@ private fun CardDetailsContent(
             }
 
             item {
-                Text(
-                    "Recent Transfers",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
+                Column(
                     modifier = Modifier.padding(horizontal = 16.dp)
-                )
+                ) {
+                    Text(
+                        "Recent Transfers",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        "Today",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
             }
 
             items(state.transactions.take(10)) { transaction ->
