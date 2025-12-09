@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
 
     implementation("androidx.compose.material:material-icons-extended:1.7.7")
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.1.1")
 
 
     // Networking (Moshi)

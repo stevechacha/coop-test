@@ -1,32 +1,18 @@
 package com.chacha.dev.coop_test.presentation.screen.details
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import com.chacha.dev.coop_test.R
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -36,28 +22,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.size.Scale
 import com.chacha.dev.coop_test.domain.model.CardType
 import com.chacha.dev.coop_test.domain.model.TransactionModel
 import com.chacha.dev.coop_test.domain.model.WalletModel
-import com.chacha.dev.coop_test.presentation.screen.details.components.QuickActionButton
-import com.chacha.dev.coop_test.presentation.screen.details.components.TransactionRow
+import com.chacha.dev.coop_test.presentation.screen.details.components.CardBalanceSection
+import com.chacha.dev.coop_test.presentation.screen.details.components.CardDetailsCard
+import com.chacha.dev.coop_test.presentation.screen.details.components.CardDetailsTopBar
+import com.chacha.dev.coop_test.presentation.screen.details.components.CurrencySelector
+import com.chacha.dev.coop_test.presentation.screen.details.components.OverlappingBoxes
+import com.chacha.dev.coop_test.presentation.screen.details.components.QuickActionButtons
+import com.chacha.dev.coop_test.presentation.screen.details.components.RecentTransfersHeader
+import com.chacha.dev.coop_test.presentation.screen.details.components.TransactionsBottomSheet
+import java.time.Instant
 
-private fun formatCardNumber(cardNumber: String): String {
-    val cleaned = cardNumber.replace(" ", "")
-    return if (cleaned.length >= 4) {
-        val last4 = cleaned.takeLast(4)
-        "0441 XXXX XXXX $last4"
-    } else {
-        "XXXX XXXX XXXX XXXX"
-    }
-}
 
 @Composable
 fun CardDetailsScreen(
@@ -91,6 +71,7 @@ fun CardDetailsScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CardDetailsContent(
     state: CardDetailsUiState,
@@ -101,6 +82,23 @@ private fun CardDetailsContent(
 ) {
     val card = state.card ?: return
     var balanceVisible by remember { mutableStateOf(true) }
+    var showTransactionsSheet by remember { mutableStateOf(true) }
+    var showCurrencyMenu by remember { mutableStateOf(false) }
+    val isEmpty = remember { state.transactions.isEmpty() }
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange = { targetValue ->
+            val isCurrentlyEmpty = state.transactions.isEmpty()
+            !isCurrentlyEmpty
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        try {
+            sheetState.show()
+        } catch (e: Exception) {
+        }
+    }
 
     val cardColors = when (card.type) {
         CardType.CREDIT -> listOf(Color(0xFF0D47A1), Color(0xFF1976D2))
@@ -111,257 +109,61 @@ private fun CardDetailsContent(
 
     Scaffold(
         topBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFF2E7D32))
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color.White
-                        )
-                    }
-                    Text(
-                        "Hi ${card.holderName.split(" ").firstOrNull() ?: "User"}",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.Default.Close,
-                            contentDescription = "Close",
-                            tint = Color.White
-                        )
-                    }
-                }
-            }
+            CardDetailsTopBar(
+                card = card,
+                state = state,
+                balanceVisible = balanceVisible,
+                showCurrencyMenu = showCurrencyMenu,
+                onBack = onBack,
+                onBalanceVisibilityToggle = { balanceVisible = !balanceVisible },
+                onCurrencyMenuToggle = { showCurrencyMenu = !showCurrencyMenu },
+                onSelectWallet = onSelectWallet
+            )
         }
     ) { paddingValues ->
-        LazyColumn(
-            modifier = modifier.fillMaxSize().padding(paddingValues),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(bottom = 32.dp)
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(paddingValues)
         ) {
-            item {
-                Column(
+            OverlappingBoxes(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            "Card Balance",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = Color.Gray
-                        )
-                        IconButton(onClick = { balanceVisible = !balanceVisible }) {
-                            Icon(
-                                if (balanceVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                contentDescription = "Toggle visibility"
-                            )
-                        }
-                    }
-                    val balance = when {
-                        card.creditLimit != null -> card.creditLimit
-                        else -> card.balance
-                    } ?: 0.0
-                    Text(
-                        if (balanceVisible) "KES ${"%,.2f".format(balance)}" else "KES ••••••",
-                        style = MaterialTheme.typography.displaySmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                        .height(120.dp)
+                        .background(Color(0xFF2E7D32))
+                )
+
+                CardDetailsCard(
+                    card = card,
+                    cardColors = cardColors
+                )
             }
 
-            item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .height(220.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Brush.linearGradient(cardColors))
-                            .padding(20.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Column {
-                                    Text(
-                                        card.type.name.replace("_", " "),
-                                        color = Color.White.copy(alpha = 0.9f),
-                                        style = MaterialTheme.typography.labelMedium
-                                    )
-                                    Text(
-                                        card.status,
-                                        color = if (card.status == "ACTIVE") Color(0xFF4CAF50) else Color(
-                                            0xFFF44336
-                                        ),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                                Text(
-                                    "COOP BANK",
-                                    color = Color.White,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
+            Spacer(modifier = Modifier.height(24.dp))
 
-                            Column {
-                                Text(
-                                    text = formatCardNumber(card.cardNumber),
-                                    color = Color.White,
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    letterSpacing = 2.sp
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Column {
-                                        Text(
-                                            "VALID THRU",
-                                            color = Color.White.copy(alpha = 0.7f),
-                                            style = MaterialTheme.typography.labelSmall
-                                        )
-                                        Text(
-                                            card.expiryDate,
-                                            color = Color.White,
-                                            style = MaterialTheme.typography.bodyMedium
-                                        )
-                                    }
-                                    Column(horizontalAlignment = Alignment.End) {
-                                        Text(
-                                            "CARD HOLDER",
-                                            color = Color.White.copy(alpha = 0.7f),
-                                            style = MaterialTheme.typography.labelSmall
-                                        )
-                                        Text(
-                                            card.holderName.uppercase(),
-                                            color = Color.White,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            fontWeight = FontWeight.SemiBold
-                                        )
-                                    }
-                                }
-                            }
+            QuickActionButtons(
+                cardStatus = card.status,
+                onToggleBlock = onToggleBlock
+            )
 
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.Bottom
-                            ) {
-                                Text(
-                                    card.name.uppercase(),
-                                    color = Color.White.copy(alpha = 0.8f),
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                                Text(
-                                    "VISA",
-                                    color = Color.White,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+            Spacer(modifier = Modifier.height(24.dp))
 
-            item {
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    QuickActionButton(
-                        iconRes = R.drawable.new_card,
-                        label = "New Card",
-                        color = Color(0xFF4CAF50),
-                        onClick = { }
-                    )
-                    QuickActionButton(
-                        iconRes = R.drawable.deposit,
-                        label = "Deposit",
-                        color = Color(0xFF2196F3),
-                        onClick = { }
-                    )
-                    QuickActionButton(
-                        iconRes = R.drawable.ic_withdraw,
-                        label = "Withdraw",
-                        color = Color(0xFF4CAF50),
-                        onClick = { }
-                    )
-                    QuickActionButton(
-                        iconRes = R.drawable.blocked,
-                        label = if (card.status == "ACTIVE") "Block Card" else "Unblock Card",
-                        color = Color(0xFF4CAF50),
-                        onClick = onToggleBlock
-                    )
-                }
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-
-            item {
-                Column(
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                ) {
-                    Text(
-                        "Recent Transfers",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        "Today",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
-            }
-
-            items(state.transactions.take(10)) { transaction ->
-                TransactionRow(transaction)
-            }
+            RecentTransfersHeader()
         }
     }
+
+    if (showTransactionsSheet) {
+        TransactionsBottomSheet(
+            transactions = state.transactions,
+            sheetState = sheetState,
+            onDismiss = { showTransactionsSheet = false }
+        )
+    }
 }
+
 
 
 @Composable
@@ -404,7 +206,15 @@ private fun CardDetailsScreenPreview() {
         TransactionModel("tx_17", "card_003", 50.00, "AUD", java.time.Instant.parse("2023-11-14T14:20:00Z"), "Woolworths Sydney", "DEBIT"),
         TransactionModel("tx_18", "card_003", 25.00, "CAD", java.time.Instant.parse("2023-11-13T11:10:00Z"), "Tim Hortons", "DEBIT"),
         TransactionModel("tx_19", "card_003", 1500.00, "KES", java.time.Instant.parse("2023-11-12T09:00:00Z"), "Jumia Kenya", "DEBIT"),
-        TransactionModel("tx_20", "card_003", 60.00, "EUR", java.time.Instant.parse("2023-11-10T16:45:00Z"), "Train Ticket (SNCF)", "PREPAID")
+        TransactionModel(
+            "tx_20",
+            "card_003",
+            60.00,
+            "EUR",
+            Instant.parse("2023-11-10T16:45:00Z"),
+            "Train Ticket (SNCF)",
+            "PREPAID"
+        )
     )
 
     CardDetailsContent(

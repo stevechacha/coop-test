@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,9 +35,158 @@ import com.chacha.dev.coop_test.R
 import com.chacha.dev.coop_test.domain.model.CardModel
 import com.chacha.dev.coop_test.domain.model.CardType
 
+@Composable
+fun CardItem(
+    card: CardModel,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
+) {
+    val cardColors = when (card.type) {
+        CardType.PREPAID -> listOf(
+            Color(0xFF1A1A1A),
+            Color(0xFF2D2D2D),
+            Color(0xFF1F1F1F)
+        )
+        CardType.CREDIT -> listOf(
+            Color(0xFF0D7A4A),
+            Color(0xFF1A9D5F),
+            Color(0xFF0F6B3F)
+        )
+        CardType.DEBIT -> listOf(
+            Color(0xFF00695C),
+            Color(0xFF00897B),
+            Color(0xFF004D40)
+        )
+        CardType.MULTI_CURRENCY -> listOf(
+            Color(0xFF0D7A4A),
+            Color(0xFF1A9D5F),
+            Color(0xFF0F6B3F)
+        )
+    }
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .height(220.dp)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Brush.linearGradient(cardColors))
+                .padding(20.dp)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.coop_logo),
+                        contentDescription = "COOP Logo",
+                        modifier = Modifier.size(40.dp, 40.dp),
+                        contentScale = ContentScale.Fit,
+                        colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(Color.White)
+                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            card.type.name.replace("_", " "),
+                            color = Color.White.copy(alpha = 0.9f),
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                        Text(
+                            card.status,
+                            color = if (card.status == "ACTIVE") Color(0xFF4CAF50) else Color(0xFFF44336),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Box(modifier = Modifier.size(40.dp))
+                }
+
+                Column {
+                    Text(
+                        text = formatCardNumber(card.cardNumber),
+                        color = Color.White,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 2.sp
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text(
+                                "VALID THRU",
+                                color = Color.White.copy(alpha = 0.7f),
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                            Text(
+                                card.expiryDate,
+                                color = Color.White,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text(
+                                "CARD HOLDER",
+                                color = Color.White.copy(alpha = 0.7f),
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                            Text(
+                                card.holderName.uppercase(),
+                                color = Color.White,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    Text(
+                        card.name.uppercase(),
+                        color = Color.White.copy(alpha = 0.8f),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+
+                    Image(
+                        painter = painterResource(id = R.drawable.visa_logo),
+                        contentDescription = "COOP Logo",
+                        modifier = Modifier.size(40.dp, 40.dp),
+                        contentScale = ContentScale.Fit,
+                    )
+                   /* Text(
+                        "VISA",
+                        color = Color.White,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )*/
+                }
+            }
+        }
+    }
+}
+
 
 @Composable
-fun CardItem(card: CardModel, onClick: () -> Unit) {
+fun CardItems(card: CardModel, onClick: () -> Unit) {
     val cardBackground = when (card.type) {
         CardType.CREDIT -> R.drawable.credit_card
         CardType.DEBIT -> R.drawable.debit_card_active
@@ -50,67 +201,65 @@ fun CardItem(card: CardModel, onClick: () -> Unit) {
         CardType.PREPAID -> "PREPAID CARD"
     }
 
-    val aspectRatio = when (card.type) {
-        CardType.DEBIT -> 344f / 220f
-        CardType.CREDIT -> 368f / 238f
-        CardType.PREPAID -> 332f / 212f
-        CardType.MULTI_CURRENCY -> 332f / 212f
-    }
-
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(aspectRatio)
+            .height(200.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         tonalElevation = 4.dp
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box {
             Image(
                 painter = painterResource(id = cardBackground),
                 contentDescription = cardTypeText,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.FillBounds
             )
-            
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
-                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(horizontal = 20.dp, vertical = 18.dp),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Column {
-                    Text(
-                        text = cardTypeText,
-                        color = Color.White,
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 9.sp,
-                        letterSpacing = 0.2.sp
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = card.status,
-                        color = if (card.status == "ACTIVE") Color(0xFF4CAF50) else Color(0xFFF44336),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 7.sp
-                    )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Column {
+                        Text(
+                            text = cardTypeText,
+                            color = Color.White,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.sp,
+                            letterSpacing = 0.5.sp
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = card.status,
+                            color = if (card.status == "ACTIVE") Color(0xFF4CAF50) else Color(0xFFF44336),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 9.sp
+                        )
+                    }
                 }
 
-                Spacer(modifier = Modifier.height(22.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
                     text = formatCardNumber(card.cardNumber),
                     color = Color.White,
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    letterSpacing = 2.5.sp
+                    fontSize = 22.sp,
+                    letterSpacing = 4.sp
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 Column {
                     Row(
@@ -123,14 +272,14 @@ fun CardItem(card: CardModel, onClick: () -> Unit) {
                                 text = "MONTH/YEAR",
                                 color = Color.White.copy(alpha = 0.7f),
                                 style = MaterialTheme.typography.labelSmall,
-                                fontSize = 6.sp
+                                fontSize = 8.sp
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = card.expiryDate,
                                 color = Color.White,
                                 style = MaterialTheme.typography.bodySmall,
-                                fontSize = 10.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
                         }
@@ -139,14 +288,14 @@ fun CardItem(card: CardModel, onClick: () -> Unit) {
                                 text = "CARD CVV",
                                 color = Color.White.copy(alpha = 0.7f),
                                 style = MaterialTheme.typography.labelSmall,
-                                fontSize = 6.sp
+                                fontSize = 8.sp
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "XXX",
                                 color = Color.White,
                                 style = MaterialTheme.typography.bodySmall,
-                                fontSize = 10.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
                         }
@@ -162,7 +311,7 @@ fun CardItem(card: CardModel, onClick: () -> Unit) {
                         },
                         color = Color.White.copy(alpha = 0.9f),
                         style = MaterialTheme.typography.bodySmall,
-                        fontSize = 8.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Medium,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
