@@ -145,7 +145,7 @@ fun UserProfileScreen(
                     // Name
                     ProfileInfoRow(
                         label = "Name",
-                        value = user.fullName
+                        value = user.firstName + " " + user.lastName
                     )
 
                     // Email
@@ -164,22 +164,22 @@ fun UserProfileScreen(
 
                     ProfileInfoRow(
                         label = "Street",
-                        value = user.street
+                        value = user.address.street
                     )
 
                     ProfileInfoRow(
                         label = "City",
-                        value = user.city
+                        value = user.address.city
                     )
 
                     ProfileInfoRow(
                         label = "Country",
-                        value = user.country
+                        value = user.address.country
                     )
 
                     ProfileInfoRow(
                         label = "Postal Code",
-                        value = user.postalCode
+                        value = user.address.postalCode
                     )
                 }
             }

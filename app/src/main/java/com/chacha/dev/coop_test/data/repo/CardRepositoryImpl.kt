@@ -123,11 +123,15 @@ class CardRepositoryImpl @Inject constructor(
 
         try {
             val remoteUser = remoteDataSource.fetchUser()
-            withContext(Dispatchers.IO) {
-                localDataSource.insertUser(remoteUser)
-            }
             emit(Resource.Success(remoteUser))
+            // Persist best-effort; do not block success delivery if cache write fails.
+            runCatching {
+                withContext(Dispatchers.IO) {
+                    localDataSource.insertUser(remoteUser)
+                }
+            }.onFailure { e -> android.util.Log.e("CardRepositoryImpl", "Failed to cache user", e) }
         } catch (e: Exception) {
+            android.util.Log.e("CardRepositoryImpl", "getUser remote failed", e)
             try {
                 val cachedUser = localDataSource.getUser().first()
                 if (cachedUser != null) {

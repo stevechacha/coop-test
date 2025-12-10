@@ -8,6 +8,7 @@ import com.chacha.dev.coop_test.data.remote.responses.CardDto
 import com.chacha.dev.coop_test.data.remote.responses.TransactionDto
 import com.chacha.dev.coop_test.data.remote.responses.UserDto
 import com.chacha.dev.coop_test.data.remote.responses.WalletDto
+import com.chacha.dev.coop_test.domain.model.Address
 import com.chacha.dev.coop_test.domain.model.CardModel
 import com.chacha.dev.coop_test.domain.model.CardType
 import com.chacha.dev.coop_test.domain.model.TransactionModel
@@ -103,10 +104,12 @@ fun UserEntity.toDomain(): UserModel = UserModel(
     email = email,
     phone = phone,
     avatarUrl = avatarUrl,
-    street = street,
-    city = city,
-    country = country,
-    postalCode = postalCode
+    address = Address(
+        street = street,
+        city = city,
+        country = country,
+        postalCode = postalCode
+    )
 )
 
 fun CardModel.toEntity(): CardEntity = CardEntity(
@@ -150,10 +153,10 @@ fun UserModel.toEntity(): UserEntity = UserEntity(
     email = email,
     phone = phone,
     avatarUrl = avatarUrl,
-    street = street,
-    city = city,
-    country = country,
-    postalCode = postalCode
+    street = address.street,
+    city = address.city,
+    country = address.country,
+    postalCode = address.postalCode
 )
 
 fun CardDto.toDomain(): CardModel = CardModel(
@@ -197,9 +200,11 @@ fun UserDto.toDomain(): UserModel = UserModel(
     email = email,
     phone = phone,
     avatarUrl = avatarUrl,
-    street = address.street,
-    city = address.city,
-    country = address.country,
-    postalCode = address.postalCode
+    address = Address(
+        street = address.street,
+        city = address.city,
+        country = address.country,
+        postalCode = address.postalCode
+    )
 )
 

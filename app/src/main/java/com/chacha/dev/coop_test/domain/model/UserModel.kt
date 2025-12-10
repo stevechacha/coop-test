@@ -7,11 +7,12 @@ data class UserModel(
     val email: String,
     val phone: String,
     val avatarUrl: String,
+    val address: Address
+)
+
+data class Address(
     val street: String,
     val city: String,
     val country: String,
     val postalCode: String
-) {
-    val fullName: String get() = "$firstName $lastName"
-}
-
+)

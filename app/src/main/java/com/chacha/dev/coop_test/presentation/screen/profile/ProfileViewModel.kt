@@ -1,5 +1,6 @@
 package com.chacha.dev.coop_test.presentation.screen.profile
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chacha.dev.coop_test.domain.common.Resource
@@ -26,12 +27,15 @@ class ProfileViewModel @Inject constructor(
             observeUser().collect { userRes ->
                 when (userRes) {
                     is Resource.Success -> {
-                        _state.update { it.copy(user = userRes.data, isLoading = false) }
+                        Log.d("ProfileViewModel", "User success: ${userRes.data}")
+                        _state.update { it.copy(user = userRes.data, isLoading = false, error = null) }
                     }
                     is Resource.Error -> {
+                        Log.e("ProfileViewModel", "User error: ${userRes.message}")
                         _state.update { it.copy(isLoading = false, error = userRes.message) }
                     }
                     is Resource.Loading -> {
+                        Log.d("ProfileViewModel", "User loading")
                         _state.update { it.copy(isLoading = true) }
                     }
                 }
