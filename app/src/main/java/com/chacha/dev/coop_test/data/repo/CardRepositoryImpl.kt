@@ -32,8 +32,7 @@ class CardRepositoryImpl @Inject constructor(
 
         emit(Resource.Loading())
 
-        val result = remoteDataSource.fetchCards()
-        when (result) {
+        when (val result = remoteDataSource.fetchCards()) {
             is Resource.Success -> {
                 val remoteCards = result.data ?: emptyList()
                 withContext(Dispatchers.IO) {

@@ -45,7 +45,7 @@ class CardRemoteDataSourceImpl @Inject constructor(
             } else text
         }
         val normalized = if (cleaned.trim().startsWith("{")) cleaned else "{${cleaned}}"
-        val root = org.json.JSONObject(normalized)
+        val root = JSONObject(normalized)
         val userObj = root.optJSONObject("user") ?: root
         val addressObj = userObj.optJSONObject("address")
 
@@ -56,7 +56,7 @@ class CardRemoteDataSourceImpl @Inject constructor(
             email = userObj.optString("email"),
             phone = userObj.optString("phone"),
             avatarUrl = userObj.optString("avatarUrl"),
-            address = com.chacha.dev.coop_test.domain.model.Address(
+            address = Address(
                 street = addressObj?.optString("street").orEmpty(),
                 city = addressObj?.optString("city").orEmpty(),
                 country = addressObj?.optString("country").orEmpty(),
